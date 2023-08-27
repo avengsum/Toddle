@@ -2,6 +2,7 @@ import { useState } from "react"
 import ColorButton from "./ColorButton" 
 import Nav from "./Nav"
 import { useClose } from "../assets/useContext"
+import del from '../assets/del.png'
 
 const Board = () => {
 
@@ -26,6 +27,8 @@ const Board = () => {
         e.preventDefault()
 
         setBoard(prevBoard => [...prevBoard , {BoardName : boardName , color : selectedColor}])
+
+        console.log(selectedColor)
 
         setIsClose(value => !value)
     }
@@ -80,7 +83,26 @@ const Board = () => {
 
             {/* Boards */}
 
-            
+            <div>
+                {board?.map((x,index) => (
+                    <div className="flex flex-col rounded-[8px] w-[364px] border-solid items-start gap-2 ">
+                        {console.log(x.color)}
+                        <div className="flex items-center gap-[24px]">
+                        <div className={`flex p-[24px] bg-[${x.color}] items-start gap-[10px]`}>
+                        </div>
+                        <h1>{x.BoardName}</h1>
+
+                        <div className="flex p-2 justify-center items-center gap-6">
+                            <button>
+                            <img src={del} className="h-4"/>
+                            </button>
+                        </div>
+                        
+                        
+                        </div>
+                    </div>
+                ))}
+            </div>
 
             </div>
             
