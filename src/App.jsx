@@ -1,5 +1,6 @@
 import Board from './Components/Board'
 import Nav from './Components/Nav'
+import Posts from './Components/Posts'
 import { CloseProvider } from './assets/useContext'
 
 function App() {
@@ -7,7 +8,7 @@ function App() {
   return (
     <CloseProvider>
        <div >
-      <Board />
+      <Posts />
     </div>
     </CloseProvider>
    

@@ -28,9 +28,13 @@ const Board = () => {
 
         setBoard(prevBoard => [...prevBoard , {BoardName : boardName , color : selectedColor}])
 
-        console.log(selectedColor)
-
         setIsClose(value => !value)
+        setBoardName('')
+        setSelectedColor('#A7F0F9')
+    }
+
+    const handleDelete = (name,color) => {
+        setBoard(prevBoard => prevBoard.filter(x => x.boardName != name && x.color != color ))
     }
 
     return(
@@ -83,7 +87,7 @@ const Board = () => {
 
             {/* Boards */}
 
-            <div>
+            <div className="flex">
                 {board?.map((x,index) => (
                     <div className="flex flex-col rounded-[8px] w-[364px] border-solid items-start gap-2 ">
                         {console.log(x.color)}
@@ -93,7 +97,7 @@ const Board = () => {
                         <h1>{x.BoardName}</h1>
 
                         <div className="flex p-2 justify-center items-center gap-6">
-                            <button>
+                            <button onClick={() => handleDelete(x.BoardName , x.color)}>
                             <img src={del} className="h-4"/>
                             </button>
                         </div>
