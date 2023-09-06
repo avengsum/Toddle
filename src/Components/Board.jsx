@@ -1,8 +1,8 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import ColorButton from "./ColorButton" 
-import Nav from "./Nav"
 import { useClose } from "../assets/useContext"
-import del from '../assets/del.png'
+import BoardContainer from "./BoardContainer"
+import main from '../assets/main.svg'
 
 const Board = () => {
 
@@ -14,33 +14,75 @@ const Board = () => {
     ];
 
     const [board , setBoard] = useState([])
+    const [fil,setFil] = useState([])
 
 
     const [selectedColor, setSelectedColor] = useState('#A7F0F9');
     const [boardName, setBoardName] = useState('');
 
     const {isClose , setIsClose} = useClose();
+    const [search ,setSearch] = useState('')
 
-    console.log(board)
+
+    const uniqueId = () => {
+        return Date.now().toString(36) + Math.random().toString(36);
+
+     }
 
     const handleSubmit = (e) => {
         e.preventDefault()
 
-        setBoard(prevBoard => [...prevBoard , {BoardName : boardName , color : selectedColor}])
+        setBoard(prevBoard => [...prevBoard , {id:uniqueId() ,BoardName : boardName , color : selectedColor}])
+        setFil(board)
 
         setIsClose(value => !value)
         setBoardName('')
         setSelectedColor('#A7F0F9')
     }
 
-    const handleDelete = (name,color) => {
-        setBoard(prevBoard => prevBoard.filter(x => x.boardName != name && x.color != color ))
+    useEffect(() => {
+        setFil(board)
+    },[board])
+
+    const handleDelete = (id) => {
+        setFil(prevBoard => prevBoard.filter(x => x.id !== id ))
     }
+
+    const handleFilter = (search) => {
+        const res = board?.filter(x => x.BoardName.toLowerCase().includes(search.toLowerCase()));
+        setFil(res)
+    }
+    
 
     return(
         <div>
-            <Nav  />
-            <div className="flex ">
+            <div className='flex w-full h-[72px] justify-between items-center border-b border-[#EBEBEB] flex-shrink-0'>
+            <img className='ml-4'  src={main}>
+            </img>
+            <div className=' flex gap-5'>
+            <input
+            value={search}
+            onChange={(e) =>{
+                setSearch(e.target.value)
+
+                handleFilter(e.target.value)
+            } }
+            className="inline-flex w-[400px] border py-1 bg-slate-100 text-xl flex-col gap-2"
+            placeholder='🔍 Search'
+            />
+            <button 
+            onClick={() => handleFilter(search)}
+            class="text-white right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
+            </div>
+            <div className="bg-[#D33852] hover:bg-red-500 flex w-[188px] h-[40px] justify-center items-center gap-2 flex-shrink-0 rounded-lg px-3 mr-5">
+            <button
+            onClick={() => setIsClose((value) => !value)}
+            className='text-white '
+            >+ Create new board</button>
+            </div>
+            
+        </div>
+            <div className="flex-col">
             {/* my boards*/}
             <h1 className="text-[32px] ml-8 mt-4 font-bold leading-10"
             >My Boards</h1>
@@ -87,25 +129,12 @@ const Board = () => {
 
             {/* Boards */}
 
-            <div className="flex">
-                {board?.map((x,index) => (
-                    <div className="flex flex-col rounded-[8px] w-[364px] border-solid items-start gap-2 ">
-                        {console.log(x.color)}
-                        <div className="flex items-center gap-[24px]">
-                        <div className={`flex p-[24px] bg-[${x.color}] items-start gap-[10px]`}>
-                        </div>
-                        <h1>{x.BoardName}</h1>
-
-                        <div className="flex p-2 justify-center items-center gap-6">
-                            <button onClick={() => handleDelete(x.BoardName , x.color)}>
-                            <img src={del} className="h-4"/>
-                            </button>
-                        </div>
-                        
-                        
-                        </div>
-                    </div>
-                ))}
+            <div className="grid grid-cols-4 gap-y-5 ml-5 mt-4 ">
+                {fil?.length > 0 ? (fil?.map((x) => (
+                    <BoardContainer key={x?.id} id={x?.id} color={x?.color} BoardName={x?.BoardName} handleDelete={handleDelete} />
+                ))) : (<h1 className='text-2xl'>Nothing Here Create some Board
+                 by click on create new board
+                </h1>)}
             </div>
 
             </div>

@@ -1,24 +1,34 @@
-import React, { useState } from 'react'
-import PostNav from './PostNav'
+import React, { useEffect, useState } from 'react'
+import PostComponent from './PostComponent'
+import { useDispatch , useSelector } from 'react-redux'
+import { addPost  } from '../assets/postSlice'
+import main from '../assets/main.svg'
 import bookmark from '../assets/bookmark.png'
-import del from '../assets/del.png'
-import fill from '../assets/heart-fill.png'
-import heart from '../assets/heart.png'
+import bookFill from '../assets/b-fill.png'
+import { Link, useLocation } from 'react-router-dom'
 
 const Posts = () => {
 
     const [isClose , setIsClose] = useState(true)
+    const dispatch = useDispatch();
+    const selector = useSelector(state => state.post)
+    const bookmarkPost = useSelector(state => state.bookmark)
+    let {state} = useLocation();
+
+    console.log(bookmarkPost)
 
     const [subject , setSubject] = useState("")
     const [desc , setDesc] = useState("")
     const [img , setImg] = useState([])
-    const [isHeart ,setIsHeart] = useState(false)
+    const [filRes , setFilRes] = useState()
+    const [search , setSearch] = useState("")
+
 
     const handleImg = (e) => {
         setImg(e.target.files[0])
     }
 
-    const [post,setPost] = useState([])
+    const [post,setPost] = useState()
 
     const handleDate = () => {
         const currentDate = new Date();
@@ -30,24 +40,73 @@ const Posts = () => {
         return formattedDate
         
     }
+    const uniqueId = () => {
+            return Date.now().toString(36) + Math.random().toString(36);
+    
+    }
+
+    useEffect(() => {
+        setPost(selector)
+        setFilRes(selector)
+    },[selector])
 
     const handleSubmit = (e) => {
         e.preventDefault()
-
-        setPost(prevPost => [...prevPost , {subject:subject, description : desc , image : img , date:handleDate()}])
+        setPost(selector)
+        //setPost(prevPost => [...prevPost , {subject:subject, description : desc , image : img , date:handleDate()}])
+        dispatch(addPost({id : uniqueId(), subject:subject, description : desc , image : URL.createObjectURL(new Blob([img])) , date:handleDate()}))
 
         setDesc('')
         setSubject('')
         setIsClose(value => !value)
         
     }
-    console.log(post)
+
+    const handleFilter = (search,posts) => {
+        const res = posts?.filter(x => x.subject.toLowerCase().includes(search.toLowerCase()));
+        setFilRes(res)
+    }
+
+    console.log(state)
+    
 
 
   return (
-    <div>
-        <PostNav />
-        <div className='h-screen bg-blue-400'>
+    <div className='h-screen'
+    style={{backgroundColor: state}}
+    >
+        <div className='flex bg-white w-full h-[72px] justify-between items-center border-b border-[#EBEBEB] flex-shrink-0'>
+            <img className='ml-4'  src={main}/>
+            <div className=' flex gap-5'>
+            <input
+            value={search}
+            onChange={(e) =>{
+                setSearch(e.target.value)
+
+                handleFilter(e.target.value,post)
+            } }
+            className="inline-flex w-[400px] border py-1 bg-slate-100 text-xl flex-col gap-2"
+            placeholder='🔍 Search'
+            />
+            <button 
+            onClick={() => handleFilter(search,post)}
+            class="text-white right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
+            </div>
+
+            <Link to={'/bookmark'}>
+            <button>
+                {bookmarkPost?.length > 0 ? 
+                    <img src={bookFill} className='h-10 mr-4'/>
+                    : <img src={bookmark} className='h-10 mr-4'/>
+                }
+                
+            </button>
+            </Link>
+
+            
+        </div>
+        <div className='max-h-screen'
+        style={{backgroundColor: state}}>
         <div className='flex p-4 justify-between'>
             <h1 className='text-4xl font-semibold'>Your posts</h1>
             <button
@@ -104,33 +163,16 @@ const Posts = () => {
             </div>
 
         </div>
-        <div className='w-[300px] bg-slate-50 h-[545px]flex p-[16px] flex-start gap-[10px] rounded-[8px] '>
-            <div className='flex gap-6'>
-                <h1
-                className='text-2xl font-semibold'
-                >{post[0]?.subject}</h1>
-                <div className='flex gap-2 '>
-                <button><img src={bookmark} className='w-8 h-6' alt="bookmarkIcon" /></button>
-                <button><img src={del} className='w-8 h-6' alt="deleteIcon" /></button>
-                
-                </div>
-                
-            </div>
-            <div>
-                <p>{post[0]?.date}</p>
-                <img 
-                className='w-[243px] h-[162px]'
-                src={URL.createObjectURL(new Blob([post[0]?.image]))} alt="" />
-            </div>
-            <div className='w-'>
-                <h1>{post[0]?.description}</h1>
-            </div>
-            <div>
-               <button
-               className='w-4'
-               onClick={() => setIsHeart(value => !value)}
-               >{isHeart ? <img src={fill} /> : <img src={heart} />}</button> 
-            </div>
+        <div className='grid grid-cols-4 gap-y-4'>
+        {filRes?.length > 0 ? (filRes?.map((x) => (
+            <PostComponent key={x.id}
+            subject={x.subject}
+            image={x.image}
+            description={x.description}
+            date={x.Date}
+            id = {x.id}
+             />
+        ))) : <h1 className='text-2xl'>Nothing Here Create some Post by click on create a post</h1>}
         </div>
         
         </div>

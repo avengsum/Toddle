@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
-import toogleSlice from './toogleSlice';
+import postSlice from './postSlice';
+import bookmarkSlice from './bookmarkSlice';
 
 const store = configureStore({
   reducer: {
-    toggle: toogleSlice
+    post : postSlice,
+    bookmark : bookmarkSlice
   },
 });
 
